@@ -14,6 +14,12 @@
         crossorigin="anonymous"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+<style>
+    img{
+        height: 50px;
+    }
+</style>
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -33,6 +39,7 @@
             newBlog.title = $('#title').val();
             newBlog.brief = $('#brief').val();
             newBlog.content = $('#content').val();
+            newBlog.img = resultImage();
             console.log(newBlog);
             let id = $('#id').val();
             if (!id) {
@@ -51,6 +58,7 @@
                     alert(data)
                     pageBlog();
                     document.getElementById('btn-create').innerHTML = "CREATE";
+                    document.getElementById('imgDiv').innerHTML = "";
                     resetCreateForm();
                 }
             })
@@ -81,25 +89,26 @@
                 pageSize: 5,
                 callback: function (response, pagination) {
                     let dataHtml = '<table border="1" class="table">'
+                    +'<tr class="table-success">' +
+                    '<th >Title</th>' +
+                    '<th >Brief</th>' +
+                    '<th>Content</th>' +
+                    '<th>Image</th>' +
+                    '<th>Date</th>' +
+                    '<th>Edit</th>' +
+                    '<th>Delete</th>'
                     let pageStart = (pagination.pageNumber - 1) * pagination.pageSize;
                     let pageEnd = pageStart + pagination.pageSize;
                     let pageItems = response.slice(pageStart, pageEnd);
                     $.each(pageItems, function (index, item) {
                         dataHtml +=
-                            '<tr class="table-success">' +
-                            '<th >Title</th>' +
-                            '<th >Brief</th>' +
-                            '<th>Content</th>' +
-                            '<th>Image</th>' +
-                            '<th>Date</th>' +
-                            '<th>Edit</th>' +
-                            '<th>Delete</th>' +
                             '</tr>' +
                             '<tr>' +
                             '<td class="table-danger">' + '<p>' + item.title + '</p>' + '</td>' +
                             '<td class="table-warning">' + '<p>' + item.brief + '</p>' + '</td>' +
                             '<td class="table-light">' + '<p>' + item.content + '</p>' + '</td>' +
-                            '<td class="table-light">' + '<p>' + item.img + '</p>' + '</td>' +
+                            '<td>' + '<img ' + 'class =' + "show_image " + 'src=' + item.img + '>' + '</td>'+
+                            // '<td class="table-light">' + '<p>' + item.img + '</p>' + '</td>' +
                             '<td class="table-light">' + '<p>' + item.date + '</p>' + '</td>' +
                             '<td><button class="btn btn-primary" onclick="editBlog(' + item.id + ')">Edit</button> </td>' +
                             '<td><button class="btn btn-danger" onclick="deleteBLog(' + item.id + ')">Delete</button> </td>' +
@@ -177,7 +186,8 @@
                             '<td class="table-danger">' + '<p>' + item.title + '</p>' + '</td>' +
                             '<td class="table-warning">' + '<p>' + item.brief + '</p>' + '</td>' +
                             '<td class="table-light">' + '<p>' + item.content + '</p>' + '</td>' +
-                            '<td class="table-light">' + '<p>' + item.img + '</p>' + '</td>' +
+                            '<td>' + '<img ' + 'class =' + "show_image " + 'src=' + item.img + '>' + '</td>'+
+                            // '<td class="table-light">' + '<p>' + item.img + '</p>' + '</td>' +
                             '<td class="table-light">' + '<p>' + item.date + '</p>' + '</td>' +
                             '<td><button class="btn btn-primary" onclick="editBlog(' + item.id + ')">Edit</button> </td>' +
                             '<td><button class="btn btn-danger" onclick="deleteBLog(' + item.id + ')">Delete</button> </td>' +
@@ -192,51 +202,7 @@
     }
 
 
-    // function searchBlogByTitle(){
-    //     let search = document.getElementById('search').value;
-    //     if(search === ''){
-    //         pageBlog();
-    //         return
-    //     }
-    //     $(function () {
-    //         console.log('size trong pagination ==',size)
-    //         let container = $('#demo');
-    //         container.pagination({
-    //             // dataSource: 'http://localhost:8080/phone/search/'+search,
-    //             dataSource: `http://localhost:8080/api/blogs/searchByTitle/${search}`,
-    //             locator: 'itemts',
-    //             totalNumber: size,
-    //             pageSize: 5,
-    //             callback: function (response, pagination) {
-    //                 let dataHtml = '<table border="1" class="table">'
-    //                 let pageStart = (pagination.pageNumber - 1) * pagination.pageSize;
-    //                 let pageEnd = pageStart + pagination.pageSize;
-    //                 let pageItems = response.slice(pageStart, pageEnd);
-    //                 $.each(pageItems, function (index, item) {
-    //                     dataHtml +=
-    //                         '<tr class="table-success">' +
-    //                         '<th >Producer</th>' +
-    //                         '<th >Model</th>' +
-    //                         '<th>Price</th>' +
-    //                         '<th>Edit</th>' +
-    //                         '<th>Delete</th>' +
-    //                         '</tr>' +
-    //                         '<tr>' +
-    //                         '<td class="table-danger">' +'<p>'+item.producer+'</p>'+ '</td>'+
-    //                         '<td class="table-warning">' +'<p>'+item.model+'</p>'+ '</td>'+
-    //                         '<td class="table-light">' +'<p>'+item.price+'</p>'+ '</td>'+
-    //                         '<td><button class="btn btn-primary" onclick="editSmartPhone('+item.id+')">Edit</button> </td>'+
-    //                         '<td><button class="btn btn-danger" onclick="deleteSmartPhone('+item.id+')">Delete</button> </td>'+
-    //                         '</tr>'
-    //
-    //                 })
-    //                 dataHtml += '</table>';
-    //                 container.prev().html(dataHtml);
-    //             }
-    //         })
-    //     })
-    //
-    // }
+
 
 
 </script>
@@ -267,7 +233,13 @@
                 <span class="input-group-text">Content</span>
                 <input id="content" type="text" class="form-control" placeholder="content">
             </div>
+            <span class="input-group-text">Image</span>
+            <progress value="0" max="100" id="uploader">0%</progress>
+            <input type="file" value="upload" accept=".jpg" id="fileButton">
+            <div id="imgDiv"></div>
+            <br><br>
             <button id="btn-create" type="button" class="btn btn-primary">Create</button>
+
         </div>
     </div>
 </div>
@@ -275,6 +247,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css" rel="stylesheet"/>
+<script src="upload-firebase.js"></script>
 <hr>
 <h1 class="alert alert-primary">Pagination</h1>
 <div id="wrapper">
